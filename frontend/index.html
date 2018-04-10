@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es"  >
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv='X-UA-Compatible' content='IE=edge' />
+	<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+	
+	<title></title>
+
+	
+    <script src="js/lib/angular.js"></script>	
+
+	<script type="text/javascript">
+  		var trelloApp = angular.module('trelloApp',[]);
+	</script>
+
+	<!-- App Script -->    
+    <script src="js/factory/trelloAppFactory.js"></script>
+
+      <!-- Controllers -->
+    <script src="js/controllers/trelloAppController.js"></script>
+
+      <!-- Services -->
+    <script src="js/services/trelloAppService.js"></script>
+
+        <!-- Bootstrap core CSS -->
+    <link href="bootstrap-4.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body ng-app="trelloApp" >
+
+
+<div ng-controller="trelloAppController">
+
+<br>
+
+
+	<script src="bootstrap-4.0.0/assets/js/vendor/jquery-slim.min.js"></script>
+    <script src="bootstrap-4.0.0/assets/js/vendor/popper.min.js"></script>
+    <script src="bootstrap-4.0.0/js/dist/util.js"></script>
+    <script src="bootstrap-4.0.0/js/dist/modal.js"></script>
+    <script src="bootstrap-4.0.0/js/dist/collapse.js"></script>
+    <script src="bootstrap-4.0.0/js/dist/tooltip.js"></script>
+    <script src="bootstrap-4.0.0/js/dist/popover.js"></script>
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#">Bienvenido {{infoUser.username}} !!</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+          <ul class="navbar-nav ml-auto">
+	
+          </ul>
+        </div>
+      </div>
+    </nav>
+	<br>
+    <!-- Page Content -->
+    <div class="container">
+
+      <div class="row">
+
+        <div class="col-lg-3">
+          <h3 class="my-4">Tableros</h3>
+          <div class="list-group">
+						<a href="" class="list-group-item {{board.class}}"  ng-click="getLists($index)" ng-repeat="board in boards">
+								{{board.name}}
+						</a>
+          </div>
+
+					<h4 class="my-4">Listas de Tareas</h4>
+          <div class="list-group">
+						<a href="" ng-click="getCardsWithClass($index)" class="list-group-item {{list.class}}"  ng-repeat="list in boardSelected.lists">
+								{{list.name}}
+						</a>
+          </div>
+
+			
+
+
+        </div>
+        <!-- /.col-lg-3 -->
+
+        <div class="col-lg-9">
+
+          <div class="card mt-4">
+					     <div class="card-header">
+              Tarjetas de la lista seleccionada
+            </div>
+            <div class="card-body">
+              
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Nombre</th>
+      <th scope="col">Descripción</th>
+      <th scope="col">Ultima Modificación</th>
+			<th scope="col"></th>	
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="card in cards">
+      <th scope="row">{{card.id}} </th>
+      <td>{{card.name}} </td>
+      <td>{{card.desc}} </td>
+			 <td>{{card.objectResponseTrello.dateLastActivity}} </td>
+      <td>
+					<button class="form-control btn btn-primary" ng-click="viewCard(card)">Editar</button>
+				<button class="form-control btn btn-danger" ng-click="deleteCard(card.id,$index)">Eliminar</button> 
+
+			</td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+          </div>
+          <!-- /.card -->
+
+          <div class="card card-outline-secondary my-4">
+            <div class="card-header">
+              Agregar Tarjeta
+            </div>
+            <div class="card-body">
+         						<div ng-show="mostrarFormulario">
+<form>
+  <div class="form-group">
+    <label for="exampleInputEmail1">Nombre</label>
+    <input ng-model="formNote.name"  class="form-control" placeholder="Nombre">
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Descripción</label>
+    <textarea ng-model="formNote.desc" placeholder="Descripción" class="form-control">
+		</textarea>
+  </div>
+	 <div ng-show="false" class="form-group">
+    <label for="">Lista</label>
+    <select readonly ng-model="formNote.idList" class="form-control">
+			<option ng-repeat="list in boardSelected.lists" value="{{list.id}}">{{list.name}}</option>
+		</select>
+		</textarea>
+  </div>
+
+  <button ng-click="createCard(card)" type="submit" class="btn btn-primary">{{labelBoton}}</button>
+</form>
+</div>
+            </div>
+          </div>
+          <!-- /.card -->
+
+        </div>
+        <!-- /.col-lg-9 -->
+
+      </div>
+
+
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div style="width: 80%" class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalCenterTitle">Necesitamos tu Autorización</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Es necesario que nos autorices para utilizar tu cuenta de Trello , para hacerlo por favor da click en el siguiente Link, e ingresa el token que se genere luego que aceptes.
+        <br>
+        <br>
+        
+        <a onclick="window.open(this.href, this.target, 'width=600,height=600'); return false;" href="https://trello.com/1/authorize?expiration=1day&name=Cliente Trello - Click Delivery Test&scope=read,write&response_type=token&key=794a55f67152e8b27646ad12a18557e0">Autorización Trello (Click Aquí)</a>
+       <br>
+       <br>
+    
+
+        <div class="row">
+          <div class="col-sm-10">
+            <input ng-model="token" class="form-control" class="placeholder" placeholder="Introduzca el token generado"/>
+            
+          </div>
+          <div class="col-sm-2">
+            <div ng-show="mostrarLoading" >
+              <img width="50" height="50" src="images/loading.gif"/>
+            </div>
+          </div>
+        </div>
+
+
+
+ 
+      </div>
+
+      <div ng-show="errorToken && !mostrarLoading" class="alert alert-danger form-control" role="alert">
+        Token Inválido, por favor verifica o solicitalo nuevamente.
+      </div>
+
+      <div ng-show="validoToken" class="alert alert-success" role="alert">
+        Token Correcto !!!, Bienvenido :)
+        <br>
+        <a href="" class="btn btn-secondary" data-dismiss="modal">Ir a los Tableros</a>
+      </div>
+
+      <div ng-show="errorIngresoToken" class="alert alert-danger form-control" role="alert">
+        Ingrese el token
+      </div>
+
+      
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Salir</button>
+        <button ng-disabled="mostrarLoading" type="button" ng-click="verifyToken()" class="btn btn-primary">Verificar Token generado</button>
+      </div>
+
+   
+    </div>
+  </div>
+</div>
+
+
+
+
+    </div>
+    <!-- /.container -->
+
+    <!-- Footer -->
+    <footer class="py-5 bg-dark">
+      <div class="container">
+        <p class="m-0 text-center text-white">Desarrolladopor : Andrés Felipe Hernández Rocha </p>
+      </div>
+      <!-- /.container -->
+    </footer>
+
+
+  
+
+
+</body>
+
+
+
+
+
+
+<script>
+  $(document).ready(function(){
+          $("#exampleModalCenter").modal();
+  });
+  </script>
+
+
+
+</body>
+</html>
+
+
